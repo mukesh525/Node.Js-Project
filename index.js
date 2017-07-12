@@ -19,22 +19,16 @@ var mongoPort = 27017;
 var collectionDriver;
 
 var mongoClient = new MongoClient(new Server(mongoHost, mongoPort)); //B
-
-mongoClient.open(function(err, mongoClient) { //C
-  if (!mongoClient) {
+var url = 'mongodb://localhost:27017/mongo-server';
+      // Use connect method to connect to the server
+MongoClient.connect(url, function(error, db) {
+    if (error) {
       console.error("Error! Exiting... Must start MongoDB first");
-      process.exit(1); //D
-  }
-  var db = mongoClient.db("MyDatabase");  //E
-  collectionDriver = new CollectionDriver(db); //F
+      process.exit(1);
+   }
+    console.log("Connected to MongoDB successfully.");
+    collectionDriver = new CollectionDriver(db);
 });
-
-
-
-
-
-
-
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -47,7 +41,7 @@ app.get('/:collection', function(req, res) { //A
     	          res.render('data',{objects: objs, collection: req.params.collection}); //F
               } else {
 	          res.set('Content-Type','application/json'); //G
-                  res.send(200, objs); //H
+                res.send(200, objs); //H
               }
          }
    	});
@@ -108,6 +102,8 @@ app.get('/:collection/:entity', function(req, res) { //I
       res.send(400, {error: 'bad url', url: req.url});
    }
 });
+
+
 app.use(function (req,res) { //1
     res.render('404', {url:req.url}); //2
 });
